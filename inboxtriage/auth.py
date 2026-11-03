@@ -10,11 +10,15 @@ from googleapiclient.discovery import build
 
 from inboxtriage.config import get_settings
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 =======
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 >>>>>>> Stashed changes
+=======
+SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+>>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
 
 
 def get_credentials_path() -> str:

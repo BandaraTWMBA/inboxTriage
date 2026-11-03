@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
+=======
+>>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
 from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import DateTime, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+<<<<<<< HEAD
 =======
 import json
 from datetime import date, datetime
@@ -14,6 +18,8 @@ from typing import Optional
 from sqlalchemy import DateTime, Date, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 >>>>>>> Stashed changes
+=======
+>>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
 
 
 class Base(DeclarativeBase):
@@ -31,6 +37,7 @@ class Message(Base):
     body: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     raw_labels: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+<<<<<<< HEAD
 <<<<<<< Updated upstream
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 =======
@@ -68,3 +75,6 @@ class Classification(Base):
 
     message: Mapped["Message"] = relationship(back_populates="classifications")
 >>>>>>> Stashed changes
+=======
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+>>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
