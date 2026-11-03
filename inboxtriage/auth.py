@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 
 from inboxtriage.config import get_settings
 
-SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
+SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
 def get_credentials_path() -> str:
