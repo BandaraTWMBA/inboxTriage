@@ -1,6 +1,6 @@
 # Feature 02 — Classification Agent (Single-Shot)
 
-**Status:** In progress
+**Status:** Not started
 **Week:** 2
 **Depends on:** `features/01-gmail-ingestion.md`, `architecture/data-model.md`
 

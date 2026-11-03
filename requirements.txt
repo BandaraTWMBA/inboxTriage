@@ -6,4 +6,3 @@ google-api-python-client
 google-auth-oauthlib
 beautifulsoup4
 pytest
-google-generativeai
