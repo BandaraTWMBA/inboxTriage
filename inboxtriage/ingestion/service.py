@@ -5,9 +5,10 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
-from inboxtriage.db import get_session, init_db
-from inboxtriage.gmail_client import list_recent_messages
-from inboxtriage.models import Message
+from inboxtriage.core.db import get_session, init_db
+from inboxtriage.core.models import Message
+from inboxtriage.ingestion.auth import build_gmail_service
+from inboxtriage.ingestion.client import list_recent_messages
 
 
 def upsert_message(session, payload: dict) -> Message:
@@ -39,7 +40,6 @@ def sync_recent_messages(lookback_days: int = 1, max_results: int = 20):
     init_db()
     service = None
     try:
-        from inboxtriage.auth import build_gmail_service
         service = build_gmail_service()
     except Exception:
         service = None
@@ -59,7 +59,3 @@ def sync_recent_messages(lookback_days: int = 1, max_results: int = 20):
     finally:
         session.close()
 
-
-if __name__ == "__main__":
-    count = sync_recent_messages()
-    print(f"Synced {count} messages")

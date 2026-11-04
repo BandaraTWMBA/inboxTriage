@@ -31,24 +31,12 @@ def normalize_deadline(
     raw: Optional[str],
     reference: Optional[date] = None,
 ) -> Optional[str]:
-    """
-    Convert a raw date expression to ISO 8601 (YYYY-MM-DD).
-
-    Args:
-        raw:       The LLM's extracted_deadline string.
-        reference: "Today" for relative dates. Defaults to date.today().
-                   Pass a fixed date in tests for determinism.
-
-    Returns:
-        ISO date string, or None if input is empty/unparseable.
-    """
     if not raw:
         return None
 
     raw = raw.strip()
     today = reference or date.today()
 
-    # Already ISO
     if _ISO_RE.match(raw):
         try:
             date.fromisoformat(raw)
@@ -58,38 +46,31 @@ def normalize_deadline(
 
     lower = raw.lower()
 
-    # today / tonight
     if lower in ("today", "tonight"):
         return today.isoformat()
 
-    # tomorrow
     if lower == "tomorrow":
         return (today + timedelta(days=1)).isoformat()
 
-    # yesterday
     if lower == "yesterday":
         return (today - timedelta(days=1)).isoformat()
 
-    # "next <weekday>" / "this <weekday>" / bare "<weekday>"
     for prefix in ("next ", "this ", ""):
         for name, num in _WEEKDAY_MAP.items():
             if lower == f"{prefix}{name}".strip():
                 days_ahead = (num - today.weekday()) % 7
                 if prefix == "next ":
-                    # "next <weekday>" means the following week's instance
                     days_ahead += 7
                 elif days_ahead == 0 and prefix in ("next ", ""):
                     days_ahead = 7
                 return (today + timedelta(days=days_ahead)).isoformat()
 
-    # "in N days/weeks"
     m = re.match(r"in\s+(\d+)\s+(day|days|week|weeks)", lower)
     if m:
         n = int(m.group(1))
         delta = timedelta(days=n) if "day" in m.group(2) else timedelta(weeks=n)
         return (today + delta).isoformat()
 
-    # "Month Day" — e.g. "November 15th", "Nov 15"
     m = _MONTH_DAY_RE.search(lower)
     if m:
         month_str = m.group(1)[:3].lower()
@@ -104,6 +85,5 @@ def normalize_deadline(
                 candidate = date(today.year + 1, month_num, day_num)
             return candidate.isoformat()
 
-    # Unparseable — return None, never hallucinate a date
     return None
 

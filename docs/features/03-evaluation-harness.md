@@ -1,6 +1,6 @@
 # Feature 03 — Evaluation Harness
 
-**Status:** Not started
+**Status:** In progress
 **Week:** 3
 **Depends on:** `features/02-classification-agent.md`
 

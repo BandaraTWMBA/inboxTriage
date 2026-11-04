@@ -13,18 +13,16 @@ from typing import Optional
 import google.generativeai as genai
 from pydantic import ValidationError
 
-from inboxtriage.config import get_settings
-from inboxtriage.date_utils import normalize_deadline
-from inboxtriage.schemas import EmailClassification
+from inboxtriage.core.config import get_settings
+from inboxtriage.core.schemas import EmailClassification
+from inboxtriage.classification.date_normalizer import normalize_deadline
 
 logger = logging.getLogger(__name__)
 
-# ── Constants ──────────────────────────────────────────────────
-MAX_BODY_CHARS = 4_000   # truncate very long emails
+MAX_BODY_CHARS = 4_000
 MODEL_NAME = "gemini-2.5-flash"
 PROMPT_TEMPLATE_PATH = Path(__file__).parent / "prompts" / "classify_v1.txt"
 
-# Gemini response_schema — mirrors EmailClassification
 _RESPONSE_SCHEMA = {
     "type": "object",
     "properties": {
@@ -44,8 +42,6 @@ _RESPONSE_SCHEMA = {
 }
 
 
-# ── Helpers ────────────────────────────────────────────────────
-
 def _load_prompt_template() -> str:
     return PROMPT_TEMPLATE_PATH.read_text(encoding="utf-8")
 
@@ -57,7 +53,6 @@ def _build_prompt(sender: str, subject: str, body: str) -> str:
 
 
 def _call_gemini(prompt: str) -> dict:
-    """Call Gemini and return the parsed JSON dict."""
     settings = get_settings()
     genai.configure(api_key=settings["google_api_key"])
 
@@ -74,14 +69,11 @@ def _call_gemini(prompt: str) -> dict:
 
 
 def _validate(raw: dict, reference_date=None) -> EmailClassification:
-    """Validate raw Gemini output → EmailClassification, normalizing the deadline."""
     raw["extracted_deadline"] = normalize_deadline(
         raw.get("extracted_deadline"), reference=reference_date
     )
     return EmailClassification(**raw)
 
-
-# ── Public API ─────────────────────────────────────────────────
 
 def classify_email(
     gmail_id: str,
@@ -90,12 +82,6 @@ def classify_email(
     body: str,
     reference_date=None,
 ) -> Optional[EmailClassification]:
-    """
-    Classify one email via Gemini structured output.
-
-    Retries once with a corrective message on validation failure.
-    Returns None (and logs) if both attempts fail.
-    """
     prompt = _build_prompt(sender=sender, subject=subject, body=body or "")
 
     for attempt in (1, 2):

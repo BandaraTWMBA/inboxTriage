@@ -2,8 +2,8 @@ from datetime import datetime
 
 from sqlalchemy import func, select
 
-from inboxtriage.db import Base, get_engine
-from inboxtriage.models import Message
+from inboxtriage.core.db import get_engine
+from inboxtriage.core.models import Base, Message
 
 
 def test_upsert_logic_reuses_same_message_id():

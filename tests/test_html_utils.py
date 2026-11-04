@@ -1,4 +1,4 @@
-from inboxtriage.html_utils import strip_html
+from inboxtriage.ingestion.html_cleaner import strip_html
 
 
 def test_strip_html_removes_tags_and_decodes_entities():

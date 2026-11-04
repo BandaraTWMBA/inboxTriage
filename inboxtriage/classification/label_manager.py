@@ -1,8 +1,5 @@
 """
 Manages InboxTriage/* Gmail labels.
-- Creates the four labels on first run if missing, caches their IDs.
-- apply_label() removes any existing InboxTriage/* label and applies the new one.
-- Labels are purely additive — no archive, move, or mark-as-read.
 """
 from __future__ import annotations
 
@@ -18,20 +15,14 @@ CATEGORY_TO_LABEL: dict[str, str] = {
     "low_priority":  "InboxTriage/Low-Priority",
 }
 
-# Module-level cache: label_name → gmail label id
 _label_id_cache: dict[str, str] = {}
 
 
 def ensure_labels_exist(gmail_service) -> dict[str, str]:
-    """
-    Create missing InboxTriage/* labels and return {label_name: label_id}.
-    Results are cached — safe to call multiple times.
-    """
     global _label_id_cache
     if _label_id_cache:
         return _label_id_cache
 
-    # Fetch all existing labels
     result = gmail_service.users().labels().list(userId="me").execute()
     existing = {lbl["name"]: lbl["id"] for lbl in result.get("labels", [])}
 
@@ -68,13 +59,6 @@ def ensure_labels_exist(gmail_service) -> dict[str, str]:
 
 
 def apply_label(gmail_service, gmail_message_id: str, category: str) -> bool:
-    """
-    Apply the correct InboxTriage/* label for `category`.
-    Removes any prior InboxTriage/* label first — a message should never
-    carry two InboxTriage labels at the same time.
-
-    Returns True on success, False on failure.
-    """
     label_map = ensure_labels_exist(gmail_service)
 
     target_label_name = CATEGORY_TO_LABEL.get(category)
@@ -88,7 +72,6 @@ def apply_label(gmail_service, gmail_message_id: str, category: str) -> bool:
         return False
 
     try:
-        # Get current labels on this message
         msg = (
             gmail_service.users()
             .messages()
@@ -97,7 +80,6 @@ def apply_label(gmail_service, gmail_message_id: str, category: str) -> bool:
         )
         current_ids: list[str] = msg.get("labelIds", [])
 
-        # Find any InboxTriage/* labels to remove
         all_it_ids = set(label_map.values())
         to_remove = [lid for lid in current_ids if lid in all_it_ids]
 

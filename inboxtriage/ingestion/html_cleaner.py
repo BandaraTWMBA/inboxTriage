@@ -11,3 +11,4 @@ def strip_html(raw_html: str | None) -> str:
     soup = BeautifulSoup(raw_html, "html.parser")
     text = soup.get_text(" ", strip=True)
     return text
+

@@ -1,6 +1,6 @@
 from datetime import date
 
-from inboxtriage.date_utils import normalize_deadline
+from inboxtriage.classification.date_normalizer import normalize_deadline
 
 REF = date(2024, 11, 6)  # a Wednesday
 
@@ -18,7 +18,6 @@ def test_tomorrow():
 
 
 def test_next_friday():
-    # REF is Wed Nov 6 → next Friday = Nov 15 (skip this Fri Nov 8)
     assert normalize_deadline("next Friday", REF) == "2024-11-15"
 
 
@@ -27,7 +26,6 @@ def test_this_friday():
 
 
 def test_bare_weekday():
-    # bare "Monday" → upcoming Monday = Nov 11
     assert normalize_deadline("Monday", REF) == "2024-11-11"
 
 
@@ -44,7 +42,6 @@ def test_month_day():
 
 
 def test_past_month_wraps_year():
-    # Oct 1 is already past Nov 6 → wraps to 2025
     assert normalize_deadline("October 1st", REF) == "2025-10-01"
 
 
@@ -58,4 +55,3 @@ def test_empty_returns_none():
 
 def test_unparseable_returns_none():
     assert normalize_deadline("sometime soon", REF) is None
-

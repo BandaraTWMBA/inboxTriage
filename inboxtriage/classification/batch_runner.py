@@ -1,9 +1,5 @@
 """
 Classify all unclassified messages, store results, apply Gmail labels.
-
-Usage:
-    python -m inboxtriage.batch_classify
-    python -m inboxtriage.batch_classify --dry-run
 """
 from __future__ import annotations
 
@@ -14,12 +10,12 @@ from datetime import date
 
 from sqlalchemy import exists, not_, select
 
-from inboxtriage.auth import build_gmail_service
-from inboxtriage.classifier import classify_email
-from inboxtriage.db import get_session_factory, init_db
-from inboxtriage.label_sync import apply_label, ensure_labels_exist
-from inboxtriage.models import Classification, Message
-from inboxtriage.schemas import PROMPT_VERSION
+from inboxtriage.core.db import get_session_factory, init_db
+from inboxtriage.core.models import Classification, Message
+from inboxtriage.core.schemas import PROMPT_VERSION
+from inboxtriage.ingestion.auth import build_gmail_service
+from inboxtriage.classification.agent import classify_email
+from inboxtriage.classification.label_manager import apply_label, ensure_labels_exist
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,16 +26,14 @@ logger = logging.getLogger("batch_classify")
 
 
 def run_batch(dry_run: bool = False) -> None:
-    init_db()  # ensure Classification table exists
+    init_db()
     SessionFactory = get_session_factory()
 
-    # Build Gmail service (needed for label sync)
     gmail_service = None
     if not dry_run:
         gmail_service = build_gmail_service()
         ensure_labels_exist(gmail_service)
 
-    # ── Find unclassified messages ────────────────────────────
     with SessionFactory() as session:
         stmt = select(Message).where(
             not_(
@@ -51,7 +45,6 @@ def run_batch(dry_run: bool = False) -> None:
             )
         )
         messages = session.scalars(stmt).all()
-        # Detach from session — we'll use separate sessions per write
         messages = list(messages)
 
     logger.info("Found %d unclassified messages.", len(messages))
@@ -80,7 +73,6 @@ def run_batch(dry_run: bool = False) -> None:
             success += 1
             continue
 
-        # ── 1. Store classification in DB ─────────────────────
         with SessionFactory() as session:
             row = Classification(
                 message_id=msg.id,
@@ -99,7 +91,6 @@ def run_batch(dry_run: bool = False) -> None:
             session.commit()
             logger.info("Stored: %s → %s (%.2f)", msg.gmail_id, result.category, result.confidence)
 
-        # ── 2. Apply Gmail label (only after DB write) ────────
         ok = apply_label(gmail_service, msg.gmail_id, result.category)
         if not ok:
             logger.warning("DB OK but label sync failed for %s", msg.gmail_id)

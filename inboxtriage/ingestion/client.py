@@ -5,8 +5,8 @@ import json
 from datetime import datetime, timedelta
 from typing import Any
 
-from inboxtriage.auth import build_gmail_service
-from inboxtriage.html_utils import strip_html
+from inboxtriage.ingestion.auth import build_gmail_service
+from inboxtriage.ingestion.html_cleaner import strip_html
 
 
 def parse_message_payload(message_detail: dict[str, Any]) -> dict[str, Any]:
@@ -69,3 +69,4 @@ def list_recent_messages(service=None, lookback_days: int = 1, max_results: int 
         detail = service.users().messages().get(userId="me", id=msg["id"], format="full").execute()
         results.append(parse_message_payload(detail))
     return results
+

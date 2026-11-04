@@ -1,0 +1,3 @@
+timestamp,prompt_version,sample_count,accuracy,macro_f1,weighted_f1,judge_action_score_mean,validation_failures,change_notes
+2026-11-04T05:24:03.971638+00:00,v1,40,0.0,0.0,0.0,,40,Baseline v1 prompt eval
+2026-11-04T05:28:11.873750+00:00,v1,40,0.0,0.0,0.0,,40,Baseline v1 prompt eval

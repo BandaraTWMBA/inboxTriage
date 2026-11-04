@@ -1,27 +1,17 @@
-"""
-Pydantic schemas for structured LLM output.
-Centralized here per coding conventions — do not redefine ad hoc elsewhere.
-"""
 from __future__ import annotations
 
 from typing import Literal, Optional
 
 from pydantic import BaseModel, field_validator
 
-
 VALID_CATEGORIES = {"urgent_action", "fyi", "can_wait", "low_priority"}
-
-# Bump this string every time you change the prompt template.
-# Feature 03 eval harness tracks results by prompt_version.
 PROMPT_VERSION = "v1"
 
 
 class EmailClassification(BaseModel):
-    """Structured output schema for a single email classification."""
-
     category: Literal["urgent_action", "fyi", "can_wait", "low_priority"]
     confidence: float
-    extracted_deadline: Optional[str] = None  # ISO 8601 date or null
+    extracted_deadline: Optional[str] = None
     action_items: list[str]
     reasoning: str
 
@@ -35,7 +25,6 @@ class EmailClassification(BaseModel):
     @field_validator("extracted_deadline", mode="before")
     @classmethod
     def empty_deadline_to_none(cls, v):
-        """Convert empty strings or literal 'null' to Python None."""
         if v in ("", "null", "None"):
             return None
         return v

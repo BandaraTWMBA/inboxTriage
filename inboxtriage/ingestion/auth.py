@@ -8,17 +8,9 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from inboxtriage.config import get_settings
+from inboxtriage.core.config import get_settings
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-=======
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
->>>>>>> Stashed changes
-=======
-SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
->>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
 
 
 def get_credentials_path() -> str:
@@ -50,3 +42,4 @@ def build_gmail_service() -> object:
             token_file.write(creds.to_json())
 
     return build("gmail", "v1", credentials=creds)
+

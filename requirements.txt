@@ -7,3 +7,4 @@ google-auth-oauthlib
 beautifulsoup4
 pytest
 google-generativeai
+scikit-learn

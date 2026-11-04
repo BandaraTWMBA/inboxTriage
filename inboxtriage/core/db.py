@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from inboxtriage.config import get_settings
-from inboxtriage.models import Base
+from inboxtriage.core.config import get_settings
+from inboxtriage.core.models import Base
 
 
 def get_engine(database_url: str | None = None) -> Engine:
@@ -27,3 +27,4 @@ def init_db(database_url: str | None = None) -> Engine:
 def get_session(database_url: str | None = None) -> Session:
     session_factory = get_session_factory(database_url)
     return session_factory()
+
