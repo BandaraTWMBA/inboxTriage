@@ -1,25 +1,11 @@
 from __future__ import annotations
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
->>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
-from datetime import datetime
-from typing import Optional
-
-from sqlalchemy import DateTime, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-<<<<<<< HEAD
-=======
 import json
 from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, Date, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
->>>>>>> Stashed changes
-=======
->>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
 
 
 class Base(DeclarativeBase):
@@ -37,16 +23,17 @@ class Message(Base):
     body: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     raw_labels: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-=======
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
 
     # ── Feature 02: relationship to classifications ──
     classifications: Mapped[list["Classification"]] = relationship(
+        back_populates="message", cascade="all, delete-orphan"
+    )
+
+    # ── Feature 04: relationship to user_feedback ──
+    feedback: Mapped[list["UserFeedback"]] = relationship(
         back_populates="message", cascade="all, delete-orphan"
     )
 
@@ -74,7 +61,22 @@ class Classification(Base):
     )
 
     message: Mapped["Message"] = relationship(back_populates="classifications")
->>>>>>> Stashed changes
-=======
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
->>>>>>> 879e91e4e7110d32d8aa01e15e28ac639785076b
+
+
+# ─────────────────────────────────────────────────────────────
+# Feature 04 — User Feedback (Personalization / RAG)
+# ─────────────────────────────────────────────────────────────
+class UserFeedback(Base):
+    __tablename__ = "user_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    message_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("messages.id", ondelete="CASCADE"), nullable=False
+    )
+    predicted_category: Mapped[str] = mapped_column(String(20), nullable=False)
+    corrected_category: Mapped[str] = mapped_column(String(20), nullable=False)
+    corrected_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+
+    message: Mapped["Message"] = relationship(back_populates="feedback")
